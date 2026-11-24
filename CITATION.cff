@@ -14,8 +14,8 @@ authors:
     given-names: María Camila
     affiliation: "Subdirección para el Conocimiento del Riesgo (SCR), Unidad Nacional para la Gestión del Riesgo de Desastres (UNGRD), Bogotá, Colombia"
 date-released: 2026-11-24
-url: "https://jorgealpala.github.io/geovolcanes/"
-repository-code: "https://github.com/jorgealpala/geovolcanes"
+url: "https://scr-ungrd.github.io/geovolcanes/"
+repository-code: "https://github.com/scr-ungrd/geovolcanes"
 keywords:
   - amenaza volcánica
   - exposición

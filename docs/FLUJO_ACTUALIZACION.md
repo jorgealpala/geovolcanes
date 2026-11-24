@@ -91,8 +91,12 @@ El script copia `data/export_web/` a `data/` (incluida `nacional/`) y ejecuta `v
 ```
 git add data
 git commit -m "datos: volcán <COD> (<nombre>)"
-git push
+git pull --rebase ungrd main     # trae primero los commits diarios de lluvia (GitHub Actions)
+git push ungrd main              # portal oficial: scr-ungrd/geovolcanes
+git push origin main             # réplica de trabajo: jorgealpala/geovolcanes (si se mantiene)
 ```
+
+El remoto `ungrd` es el repositorio oficial de la UNGRD y `origin` la réplica de trabajo. Si la réplica también corre el flujo diario de lluvia, sus commits automáticos divergen de los del oficial y `git push origin main` se rechaza; en ese caso desactive el flujo en la réplica (pestaña **Actions → Actualizar lluvia satelital → Disable workflow**) y ejecute `git pull --rebase origin main` antes de `git push origin main`.
 
 GitHub Pages publica en 1 o 2 minutos. No hay que tocar código: el selector, el ranking y el mapa nacional se arman desde `catalogo.json` y `ranking.json`.
 

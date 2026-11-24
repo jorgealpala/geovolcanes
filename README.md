@@ -4,7 +4,8 @@ Portal web estático de la **UNGRD** que muestra, para los volcanes activos moni
 
 Es la versión de publicación del proyecto de cálculo **GeoVolcanes-SCR** (PostGIS + FastAPI + Streamlit). Aquí no hay servidores: el navegador lee archivos precalculados de la carpeta `data/` y consulta servicios abiertos de imágenes.
 
-- **En línea:** https://jorgealpala.github.io/geovolcanes/
+- **En línea (portal oficial UNGRD):** https://scr-ungrd.github.io/geovolcanes/
+- **Repositorio oficial:** https://github.com/scr-ungrd/geovolcanes (réplica de trabajo: https://github.com/jorgealpala/geovolcanes)
 - **Punto de entrada:** `index.html`
 - **Probar en local:** `python scripts/servidor_local.py` y abrir http://localhost:8765
 - **Actualizar datos:** ver [docs/FLUJO_ACTUALIZACION.md](docs/FLUJO_ACTUALIZACION.md)
@@ -95,16 +96,16 @@ y abra http://localhost:8765. Antes de publicar, ejecute siempre `python scripts
 
 ## F. Publicar en GitHub Pages
 
-1. Cree el repositorio en GitHub (`jorgealpala/geovolcanes`) y suba este directorio:
+1. Cree el repositorio en GitHub (`scr-ungrd/geovolcanes`) y suba este directorio:
    ```
    git add .
    git commit -m "Geoportal GeoVolcanes-SCR"
    git branch -M main
-   git remote add origin https://github.com/jorgealpala/geovolcanes.git
+   git remote add origin https://github.com/scr-ungrd/geovolcanes.git
    git push -u origin main
    ```
 2. En GitHub: **Settings → Pages → Build and deployment → Source: Deploy from a branch → `main` / `(root)`**.
-3. A los pocos minutos el portal queda en https://jorgealpala.github.io/geovolcanes/.
+3. A los pocos minutos el portal queda en https://scr-ungrd.github.io/geovolcanes/.
 4. Para la actualización diaria de lluvia, agregue el secreto `GEE_SERVICE_ACCOUNT_KEY` ([FLUJO_ACTUALIZACION.md §4](docs/FLUJO_ACTUALIZACION.md)).
 
 El repositorio pesa unos 75 MB, casi todo en los `.pmtiles`. Ningún archivo se acerca al límite de 100 MB de GitHub; `validar_datos.py` lo comprueba.
@@ -131,7 +132,7 @@ Si un servicio externo falla, la pestaña correspondiente muestra un aviso; la e
 
 ## I. Cómo citar
 
-> Alpala, J. A., Franco, A. C. y Lima, M. C. (2026). *GeoVolcanes-SCR: geoportal libre y replicable para la evaluación de exposición y apoyo a la toma de decisiones ante amenaza volcánica. Estudio de caso: volcán Nevado del Ruiz* [Geoportal]. Subdirección para el Conocimiento del Riesgo, Unidad Nacional para la Gestión del Riesgo de Desastres (UNGRD). https://jorgealpala.github.io/geovolcanes/
+> Alpala, J. A., Franco, A. C. y Lima, M. C. (2026). *GeoVolcanes-SCR: geoportal libre y replicable para la evaluación de exposición y apoyo a la toma de decisiones ante amenaza volcánica. Estudio de caso: volcán Nevado del Ruiz* [Geoportal]. Subdirección para el Conocimiento del Riesgo, Unidad Nacional para la Gestión del Riesgo de Desastres (UNGRD). https://scr-ungrd.github.io/geovolcanes/
 
 Autores: Jorge Armando Alpala¹, Aura Catalina Franco¹ y María Camila Lima¹.  
 ¹ Subdirección para el Conocimiento del Riesgo (SCR), Unidad Nacional para la Gestión del Riesgo de Desastres (UNGRD), Bogotá, Colombia. Contacto: jorge.alpala@gestiondelriesgo.gov.co
