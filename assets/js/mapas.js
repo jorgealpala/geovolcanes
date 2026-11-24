@@ -129,7 +129,7 @@ export function cambiarBase(map, base) {
 }
 
 let contador = 0;
-export function crearMapa(el, { centro = [-74.3, 4.6], zoom = 5, base = "claro", limites, terreno = true, pantallaCompleta = true } = {}) {
+export function crearMapa(el, { centro = [-74.3, 4.6], zoom = 5, base = "topografico", limites, terreno = true, pantallaCompleta = true } = {}) {
   if (!el.id) el.id = `mapa-${++contador}`;
   const map = new maplibregl.Map({
     container: el,

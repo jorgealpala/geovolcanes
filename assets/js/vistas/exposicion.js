@@ -371,7 +371,7 @@ export async function render(cont, ctx) {
   // ======================================================================
   const elMapa = cont.querySelector("#mapa-exp");
   const [x0, y0, x1, y1] = res.bbox;
-  const map = crearMapa(elMapa, { limites: [[x0, y0], [x1, y1]], base: "claro" });
+  const map = crearMapa(elMapa, { limites: [[x0, y0], [x1, y1]], base: "topografico" });
   let popup = null;
   const marcador = new maplibregl.Marker({ color: "#14181f", scale: 0.8 })
     .setLngLat([volcan.lon, volcan.lat])

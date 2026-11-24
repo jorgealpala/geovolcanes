@@ -321,7 +321,7 @@ export async function render(cont, ctx) {
 
   // ---------------------------------------------------------------- mosaico de grillas
   const G = datos.grillas;
-  const mapaLluvia = crearMapa($("#mapa-lluvia"), { limites: [[G.bbox[0], G.bbox[1]], [G.bbox[2], G.bbox[3]]], base: "relieve", pantallaCompleta: true });
+  const mapaLluvia = crearMapa($("#mapa-lluvia"), { limites: [[G.bbox[0], G.bbox[1]], [G.bbox[2], G.bbox[3]]], base: "topografico", pantallaCompleta: true });
   new maplibregl.Marker({ color: "#14181f", scale: 0.7 }).setLngLat([volcan.lon, volcan.lat]).addTo(mapaLluvia);
   let grillaActual = null;
 
@@ -398,7 +398,7 @@ export async function render(cont, ctx) {
 
   // ---------------------------------------------------------------- mapa climatologico
   const C = datos.clim_mapa;
-  const mapaClim = crearMapa($("#mapa-clim"), { limites: [[C.bbox[0], C.bbox[1]], [C.bbox[2], C.bbox[3]]], base: "relieve" });
+  const mapaClim = crearMapa($("#mapa-clim"), { limites: [[C.bbox[0], C.bbox[1]], [C.bbox[2], C.bbox[3]]], base: "topografico" });
   new maplibregl.Marker({ color: "#14181f", scale: 0.7 }).setLngLat([volcan.lon, volcan.lat]).addTo(mapaClim);
   {
     const vs = C.valores.filter((v) => v !== null);

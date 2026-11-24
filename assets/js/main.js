@@ -98,7 +98,11 @@ async function renderizar() {
     a.href = `#/${a.dataset.ruta}?v=${cod}`;
     if (a.dataset.ruta === ruta) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
   });
-  document.title = `${TITULOS[ruta]} · ${ctx.porCodigo.get(cod)?.nombre || ""} · GeoVolcanes-SCR`;
+  // En el panorama nacional el selector no aplica (la vista muestra todos los volcanes).
+  const esNacional = ruta === "nacional";
+  document.querySelector(".barra__volcan").hidden = esNacional;
+  document.title = esNacional ? `${TITULOS[ruta]} · GeoVolcanes-SCR`
+    : `${TITULOS[ruta]} · ${ctx.porCodigo.get(cod)?.nombre || ""} · GeoVolcanes-SCR`;
 
   if (limpiezaActual) { try { limpiezaActual(); } catch (e) { console.warn(e); } limpiezaActual = null; }
   cont.innerHTML = '<div class="cargando" role="status"><span class="girador"></span> Cargando…</div>';

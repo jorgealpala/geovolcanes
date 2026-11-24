@@ -79,6 +79,7 @@ p { margin: 0 0 .5em; }
 .barra__nav a:hover { background: var(--superficie-2); color: var(--texto); }
 .barra__nav a.activo { background: var(--acento-2); color: var(--acento); }
 .barra__volcan { display: flex; align-items: center; gap: 8px; }
+.barra__volcan[hidden] { display: none; }
 .barra__volcan label { font-size: 12px; color: var(--texto-3); }
 .selector-volcan {
   display: flex; align-items: center; gap: 8px;

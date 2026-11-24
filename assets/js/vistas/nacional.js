@@ -142,7 +142,7 @@ export async function render(cont, ctx) {
     </section>`));
 
   // ------------------------------------------------------------------ mapa
-  const map = crearMapa(cont.querySelector("#mapa-nacional"), { limites: limitesVolcanes(catalogo.volcanes), base: "claro", terreno: false });
+  const map = crearMapa(cont.querySelector("#mapa-nacional"), { limites: limitesVolcanes(catalogo.volcanes), base: "topografico", terreno: false });
   const marcadores = new Map();
   const marcadoresSin = [];
   let popup = null;

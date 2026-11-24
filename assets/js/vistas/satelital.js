@@ -176,7 +176,7 @@ export async function render(cont, ctx) {
   const elMapa = cont.querySelector("#mapa-sat");
   const panel = cont.querySelector("#panel-sat");
   const pie = cont.querySelector("#pie-sat");
-  const map = crearMapa(elMapa, { limites: cuadroAlrededor(LAT, LON, 9), base: "satelite" });
+  const map = crearMapa(elMapa, { limites: cuadroAlrededor(LAT, LON, 9), base: "topografico" });
   new maplibregl.Marker({ color: "#14181f", scale: 0.75 }).setLngLat([LON, LAT]).addTo(map);
   let temporizador = null;
   let turno = 0;
