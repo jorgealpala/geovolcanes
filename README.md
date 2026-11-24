@@ -8,7 +8,7 @@ Es la versión de publicación del proyecto de cálculo **GeoVolcanes-SCR** (Pos
 - **Repositorio oficial:** https://github.com/scr-ungrd/geovolcanes (réplica de trabajo: https://github.com/jorgealpala/geovolcanes)
 - **Punto de entrada:** `index.html`
 - **Probar en local:** `python scripts/servidor_local.py` y abrir http://localhost:8765
-- **Actualizar datos:** ver [docs/FLUJO_ACTUALIZACION.md](docs/FLUJO_ACTUALIZACION.md)
+- **Actualizar datos y publicar:** [docs/SINCRONIZACION.md](docs/SINCRONIZACION.md) (proyectos, scripts y GitHub) y [docs/FLUJO_ACTUALIZACION.md](docs/FLUJO_ACTUALIZACION.md) (casos en detalle)
 
 ---
 
@@ -67,16 +67,19 @@ geovolcanes-scr-web/
 │   ├── sincronizar_desde_scr.ps1   ← copia data/export_web/ del proyecto de cálculo (PowerShell)
 │   ├── sincronizar_desde_scr.sh    ← lo mismo para Git Bash
 │   ├── validar_datos.py            ← revisa coherencia, tamaños y credenciales antes de publicar
+│   ├── publicar_github.ps1         ← valida, confirma y sube al oficial (ungrd) y a la réplica (origin)
+│   ├── publicar_github.sh          ← lo mismo para Git Bash
 │   └── servidor_local.py           ← servidor de prueba con soporte de HTTP Range
 ├── .github/workflows/actualizar-hidromet.yml
 └── docs/
+    ├── SINCRONIZACION.md           ← proyectos, scripts y GitHub: la rutina de 3 pasos
     ├── FLUJO_ACTUALIZACION.md      ← paso a paso: volcán nuevo, recálculo, publicación
     └── DATOS.md                    ← formatos, fuentes, metodología y colores
 ```
 
 ## D. ¿Dónde se colocan los datos nuevos?
 
-Nunca a mano. Todo dato de exposición lo genera el proyecto de cálculo y se copia con el script de sincronización:
+Nunca a mano. Todo dato de exposición lo genera el proyecto de cálculo: `scripts\publicar_web.ps1` (en SCR) exporta y sincroniza, y `scripts\publicar_github.ps1` (aquí) publica. Detalle en [docs/SINCRONIZACION.md](docs/SINCRONIZACION.md).
 
 | Si cambió… | Haga esto | Archivos que se actualizan |
 |---|---|---|
@@ -96,17 +99,14 @@ y abra http://localhost:8765. Antes de publicar, ejecute siempre `python scripts
 
 ## F. Publicar en GitHub Pages
 
-1. Cree el repositorio en GitHub (`scr-ungrd/geovolcanes`) y suba este directorio:
-   ```
-   git add .
-   git commit -m "Geoportal GeoVolcanes-SCR"
-   git branch -M main
-   git remote add origin https://github.com/scr-ungrd/geovolcanes.git
-   git push -u origin main
-   ```
-2. En GitHub: **Settings → Pages → Build and deployment → Source: Deploy from a branch → `main` / `(root)`**.
-3. A los pocos minutos el portal queda en https://scr-ungrd.github.io/geovolcanes/.
-4. Para la actualización diaria de lluvia, agregue el secreto `GEE_SERVICE_ACCOUNT_KEY` ([FLUJO_ACTUALIZACION.md §4](docs/FLUJO_ACTUALIZACION.md)).
+Este repositorio se publica en dos remotos: **`ungrd`** = https://github.com/scr-ungrd/geovolcanes (oficial, con GitHub Pages en https://scr-ungrd.github.io/geovolcanes/) y **`origin`** = https://github.com/jorgealpala/geovolcanes (réplica de trabajo). Cada publicación se hace con un solo comando:
+
+```powershell
+.\scripts\publicar_github.ps1 -Simular                         # ver qué haría
+.\scripts\publicar_github.ps1 -Mensaje "portal: <qué cambió>"  # validar, confirmar y subir a ambos
+```
+
+Configuración inicial de cada repositorio (Pages, secreto `GEE_SERVICE_ACCOUNT_KEY`, permisos de Actions, lluvia diaria solo en el oficial) y cómo clonar en otro equipo: [docs/SINCRONIZACION.md §5](docs/SINCRONIZACION.md).
 
 El repositorio pesa unos 75 MB, casi todo en los `.pmtiles`. Ningún archivo se acerca al límite de 100 MB de GitHub; `validar_datos.py` lo comprueba.
 

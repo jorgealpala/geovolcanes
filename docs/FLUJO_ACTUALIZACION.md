@@ -4,10 +4,21 @@ El geoportal web **no calcula** exposición: solo publica lo que calcula el proy
 
 ```
 1. Proyecto de cálculo         2. Exportar                      3. Sincronizar           4. Publicar
-   (C:\geovolcanes\            scripts/exportar_web.py          sincronizar_desde_scr    git commit + push
-    geovolcanes-scr)           → data/export_web/               → data/ de este repo     → GitHub Pages
-   cargar / recalcular         (verifica contra la API)          + validar_datos.py
+   (C:\geovolcanes\            scripts/exportar_web.py          sincronizar_desde_scr    publicar_github.ps1
+    geovolcanes-scr)           → data/export_web/               → data/ de este repo     → ungrd (oficial) + origin
+   cargar / recalcular         (verifica contra la API)          + validar_datos.py         → GitHub Pages
+                              └──────── SCR: scripts\publicar_web.ps1 hace 2 y 3 ────────┘
 ```
+
+**Resumen en 3 comandos** (el resto de este documento explica cada caso y los pasos manuales equivalentes):
+
+```powershell
+cd C:\geovolcanes\geovolcanes-scr;     .\scripts\publicar_web.ps1 -Volcanes <COD>     # exportar + sincronizar
+cd C:\geovolcanes\geovolcanes-scr-web; python scripts\servidor_local.py               # revisar en local
+.\scripts\publicar_github.ps1 -Mensaje "datos: <qué cambió>"                          # GitHub oficial + réplica
+```
+
+La organización de proyectos, remotos y scripts está en [SINCRONIZACION.md](SINCRONIZACION.md).
 
 Convenciones de este documento:
 
@@ -50,6 +61,14 @@ Siga el checklist de `docs/ARCHITECTURE.md` (sección 9, "Checklist para un volc
 
 ### 2.2 En SCR: exportar
 
+Con script (recomendado; hace también 2.3 y 2.4):
+
+```
+.\scripts\publicar_web.ps1 -Volcanes <COD> -Hidromet <COD>
+```
+
+Equivalente manual:
+
 ```
 docker compose cp scripts/exportar_web.py api:/tmp/exportar_web.py
 docker compose exec api python /tmp/exportar_web.py --volcanes <COD>
@@ -88,15 +107,23 @@ El script copia `data/export_web/` a `data/` (incluida `nacional/`) y ejecuta `v
 
 ### 2.5 Publicar
 
+En la raíz de WEB:
+
 ```
-git add data
-git commit -m "datos: volcán <COD> (<nombre>)"
-git pull --rebase ungrd main     # trae primero los commits diarios de lluvia (GitHub Actions)
-git push ungrd main              # portal oficial: scr-ungrd/geovolcanes
-git push origin main             # réplica de trabajo: jorgealpala/geovolcanes (si se mantiene)
+.\scripts\publicar_github.ps1 -Mensaje "datos: volcán <COD> (<nombre>)"
 ```
 
-El remoto `ungrd` es el repositorio oficial de la UNGRD y `origin` la réplica de trabajo. Si la réplica también corre el flujo diario de lluvia, sus commits automáticos divergen de los del oficial y `git push origin main` se rechaza; en ese caso desactive el flujo en la réplica (pestaña **Actions → Actualizar lluvia satelital → Disable workflow**) y ejecute `git pull --rebase origin main` antes de `git push origin main`.
+El script valida, confirma los cambios, integra los commits diarios de lluvia del oficial (`git pull --rebase ungrd main`), sube al oficial (`ungrd` = scr-ungrd/geovolcanes) y después a la réplica (`origin` = jorgealpala/geovolcanes). Equivalente manual:
+
+```
+git add -A
+git commit -m "datos: volcán <COD> (<nombre>)"
+git pull --rebase ungrd main
+git push ungrd main
+git push origin main
+```
+
+Si la réplica también corre el flujo diario de lluvia, sus commits divergen de los del oficial y la subida a la réplica se rechaza: desactive el flujo en la réplica (**Actions → Actualizar lluvia satelital → Disable workflow**) y ejecute `.\scripts\publicar_github.ps1 -ForzarReplica`. Ver [SINCRONIZACION.md §5](SINCRONIZACION.md).
 
 GitHub Pages publica en 1 o 2 minutos. No hay que tocar código: el selector, el ranking y el mapa nacional se arman desde `catalogo.json` y `ranking.json`.
 
