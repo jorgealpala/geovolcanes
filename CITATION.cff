@@ -1,0 +1,25 @@
+cff-version: 1.2.0
+message: "Si usa este geoportal o sus datos, cítelo así."
+title: "GeoVolcanes-SCR: geoportal libre y replicable para la evaluación de exposición y apoyo a la toma de decisiones ante amenaza volcánica. Estudio de caso: volcán Nevado del Ruiz"
+type: software
+authors:
+  - family-names: Alpala
+    given-names: Jorge Armando
+    email: jorge.alpala@gestiondelriesgo.gov.co
+    affiliation: "Subdirección para el Conocimiento del Riesgo (SCR), Unidad Nacional para la Gestión del Riesgo de Desastres (UNGRD), Bogotá, Colombia"
+  - family-names: Franco
+    given-names: Aura Catalina
+    affiliation: "Subdirección para el Conocimiento del Riesgo (SCR), Unidad Nacional para la Gestión del Riesgo de Desastres (UNGRD), Bogotá, Colombia"
+  - family-names: Lima
+    given-names: María Camila
+    affiliation: "Subdirección para el Conocimiento del Riesgo (SCR), Unidad Nacional para la Gestión del Riesgo de Desastres (UNGRD), Bogotá, Colombia"
+date-released: 2026-11-24
+url: "https://jorgealpala.github.io/geovolcanes/"
+repository-code: "https://github.com/jorgealpala/geovolcanes"
+keywords:
+  - amenaza volcánica
+  - exposición
+  - gestión del riesgo
+  - geoportal
+  - Nevado del Ruiz
+  - Colombia

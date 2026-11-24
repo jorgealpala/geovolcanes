@@ -136,4 +136,21 @@ async function iniciar() {
   renderizar();
 }
 
+// Botones "Copiar cita" y "Copiar BibTeX" del pie de pagina
+function activarCita() {
+  const aviso = document.querySelector(".cita__aviso");
+  document.querySelectorAll("[data-copiar]").forEach((b) => b.addEventListener("click", async () => {
+    const texto = document.getElementById(b.dataset.copiar).textContent.trim();
+    try {
+      await navigator.clipboard.writeText(texto);
+      aviso.textContent = "Copiado";
+    } catch {
+      aviso.textContent = "Seleccione el texto y cópielo";
+    }
+    clearTimeout(activarCita.t);
+    activarCita.t = setTimeout(() => (aviso.textContent = ""), 2500);
+  }));
+}
+
+activarCita();
 iniciar();

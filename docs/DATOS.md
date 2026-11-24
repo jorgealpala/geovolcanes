@@ -45,6 +45,35 @@ Teselas vectoriales (Mapbox Vector Tiles, PMTiles v3, zoom 6 a 12; el navegador 
 | `municipios` | Límites municipales | `mpio`, `nombre`, `dpto` | zoom 8 |
 | `departamentos` | Límites departamentales | `dpto`, `nombre` | zoom 6 |
 
+### `nacional/amenaza.pmtiles`
+
+Zonas de amenaza de **todos** los volcanes con mapa del SGC, para el mapa del panorama nacional (PMTiles v3, zoom 3 a 11, geometría simplificada a un píxel por zoom). Capas:
+
+| Capa | Contenido | Uso en el portal |
+|---|---|---|
+| `todos` | Unión nacional mutuamente excluyente (`nivel`): cada punto toma el nivel más severo de cualquier volcán | Botón "Todos los niveles" |
+| `nivel` | Unión nacional de cada nivel por separado (`nivel`), sin restar los otros | Botones "Alta", "Media", "Baja" |
+| `zona` | Zona de cada volcán y nivel (`cod`, `nivel`) | Invisible: identifica volcanes al hacer clic |
+| `borde` | Contorno de cada volcán y nivel (`cod`, `nivel`) | Líneas del mapa |
+
+### `nacional/territorio.json`
+
+Municipios cuyo territorio interseca la zona de amenaza consolidada de algún volcán.
+
+| Bloque | Contenido |
+|---|---|
+| `resumen.<nivel>` | Para `alta`, `media`, `baja` y `cualquiera`: `departamentos`, `municipios`, `volcanes` y `areas_litigio` |
+| `municipios[]` | `cod` (DIVIPOLA), `mpio`, `dpto`, `dpto_cod`, `area_km2`, `bbox`, `litigio` y `niveles.<nivel>` con `km2` (área de la unión de volcanes), `pct` (% del municipio) y `volcanes` (`{código: km²}`) |
+| `umbral_km2` | Área mínima de intersección para contar un municipio (0,001 km² = 0,1 ha; descarta contactos de borde) |
+
+Reglas:
+
+- Un municipio se cuenta en **cada** nivel que toca, de uno o de varios volcanes; `cualquiera` cuenta municipios distintos. Por eso la suma de niveles supera el total.
+- Los porcentajes por nivel pueden sumar más de 100 % donde se superponen zonas de dos volcanes (por ejemplo, la alta de uno con la baja de otro).
+- Todo municipio con viviendas expuestas aparece en la lista (lo comprueban el exportador y `validar_datos.py`). Algunos municipios aparecen sin viviendas expuestas: su parte en la zona no tiene manzanas ni secciones con viviendas.
+- Bogotá, D.C. (código 11) cuenta como departamento propio, como en DIVIPOLA.
+- El área en litigio Cauca–Huila (código 00000) se lista, pero no se cuenta como municipio ni como departamento.
+
 ### `hidromet/<COD>.json`
 
 | Bloque | Contenido |

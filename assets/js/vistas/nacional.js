@@ -1,5 +1,6 @@
-// Vista: Panorama nacional. Mapa de los volcanes por nivel de alerta, KPIs del
-// sistema, comparacion de viviendas en amenaza alta y ranking de exposicion.
+// Vista: Panorama nacional. Mapa de los volcanes por nivel de alerta con las zonas de
+// amenaza de todos los volcanes, KPIs del sistema, comparacion de viviendas en amenaza
+// alta, departamentos y municipios en amenaza, y ranking de exposicion.
 /* global maplibregl */
 
 import { json, RUTAS } from "../datos.js";
@@ -7,6 +8,7 @@ import { entero, esc, html, descargarCSV, compacto } from "../formato.js";
 import { AMENAZA, ALERTA, ESCALA } from "../constantes.js";
 import { crearMapa, listo, elementoVolcan } from "../mapas.js";
 import { Graficos, ejeValor, ejeCategoria, filaTooltip } from "../graficos.js";
+import { MODOS_MAPA, agregarCapasAmenaza, montarTablaTerritorio } from "./nacional-amenaza.js";
 
 // Encuadre inicial: la franja andina donde estan los volcanes, con margen.
 function limitesVolcanes(vs) {
@@ -28,6 +30,7 @@ export async function render(cont, ctx) {
   const filas = ranking.ranking.map((r) => ({ ...r, v: porCodigo.get(r.codigo) }));
   const graficos = new Graficos();
   let seleccion = cod;
+  let modoAmz = MODOS_MAPA.includes(ctx.params.amenaza) ? ctx.params.amenaza : "todas";
 
   const totAlta = filas.reduce((a, r) => a + r.viv_alta, 0);
   const totPerAlta = filas.reduce((a, r) => a + r.per_alta, 0);
@@ -61,11 +64,23 @@ export async function render(cont, ctx) {
       <div class="rejilla rejilla-mapa">
         <div class="tarjeta tarjeta--sin-relleno">
           <div class="tarjeta__cabeza">
-            <h3>Mapa nacional · nivel de alerta del SGC</h3>
+            <h3>Mapa nacional · alerta y zonas de amenaza</h3>
             <label class="casilla"><input type="checkbox" id="ver-sin-datos"> Mostrar los ${sinDatos.length} volcanes sin mapa de amenaza</label>
+          </div>
+          <div class="mapa-controles">
+            <span class="leyenda-titulo">Zonas de amenaza</span>
+            <div class="segmentado" role="group" aria-label="Zonas de amenaza en el mapa" id="f-amz-mapa">
+              <button data-v="todas" title="Los tres niveles; donde se superponen volcanes se ve el nivel más severo">Todos los niveles</button>
+              ${["alta", "media", "baja"].map((n) => `<button data-v="${n}" title="Solo amenaza ${AMENAZA[n].nombre.toLowerCase()} de todos los volcanes"><span class="muestra" style="background:${AMENAZA[n].color}"></span>${AMENAZA[n].nombre}</button>`).join("")}
+              <button data-v="ninguna">Ocultar</button>
+            </div>
+            <span class="nota">Clic en una zona para ver qué volcanes la cubren</span>
           </div>
           <div class="mapa mapa--alto" id="mapa-nacional"></div>
           <div class="mapa-pie">
+            <span class="leyenda-titulo">Amenaza</span>
+            ${["alta", "media", "baja"].map((n) => `<span class="leyenda-item"><span class="caja" style="background:${AMENAZA[n].color};opacity:.75"></span>${AMENAZA[n].nombre}</span>`).join("")}
+            <span class="leyenda-sep" aria-hidden="true"></span>
             <span class="leyenda-titulo">Nivel de alerta</span>
             ${Object.values(ALERTA).map((a) => `<span class="leyenda-item" title="${esc(a.desc)}"><span class="caja" style="background:${a.color};border-radius:50%"></span>${a.nombre} · ${esc(a.desc)}</span>`).join("")}
           </div>
@@ -77,6 +92,12 @@ export async function render(cont, ctx) {
           </div>
           <div class="grafico" id="g-alta" style="height:600px"></div>
         </div>
+      </div>
+
+      <div class="separador"></div>
+
+      <div class="tarjeta tarjeta--sin-relleno" id="territorio">
+        <div class="cargando" role="status"><span class="girador"></span> Cargando municipios en amenaza…</div>
       </div>
 
       <div class="separador"></div>
@@ -149,6 +170,7 @@ export async function render(cont, ctx) {
 
   function abrirPopup(v) {
     popup?.remove();
+    capasAmz?.quitarPopup();
     popup = new maplibregl.Popup({ offset: 30, maxWidth: "300px" }).setLngLat([v.lon, v.lat]).setHTML(contenidoPopup(v)).addTo(map);
   }
 
@@ -171,11 +193,56 @@ export async function render(cont, ctx) {
     marcadoresSin.forEach((m) => (e.target.checked ? m.addTo(map) : m.remove()));
   });
 
+  let capasAmz = null;
   listo(map).then(async () => {
+    if (!map.getStyle()) return;
+    capasAmz = agregarCapasAmenaza(map, { porCodigo, modo: modoAmz, alAbrirPopup: () => popup?.remove() });
     const deptos = await json(RUTAS.departamentos).catch(() => null);
     if (!deptos || !map.getStyle()) return;
     map.addSource("deptos", { type: "geojson", data: deptos });
     map.addLayer({ id: "deptos-linea", type: "line", source: "deptos", paint: { "line-color": "#8a93a3", "line-width": 0.7, "line-opacity": 0.8 } });
+  });
+
+  // ------------------------------------------------------------------ zonas de amenaza
+  // El mapa ("todas" | nivel | "ninguna") y la tabla territorial ("cualquiera" | nivel) van sincronizados.
+  let tablaTerr = null;
+  const nivelTabla = (m) => (["alta", "media", "baja"].includes(m) ? m : "cualquiera");
+  function fijarModoAmz(m, { desde } = {}) {
+    modoAmz = m;
+    cont.querySelectorAll("#f-amz-mapa button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.v === m)));
+    capasAmz?.fijarModo(m);
+    if (desde !== "tabla") tablaTerr?.fijarNivel(nivelTabla(m));
+    ctx.fijarParams({ amenaza: m === "todas" ? undefined : m });
+  }
+  cont.querySelector("#f-amz-mapa").addEventListener("click", (e) => {
+    const b = e.target.closest("button[data-v]");
+    if (b) fijarModoAmz(b.dataset.v);
+  });
+  fijarModoAmz(modoAmz);
+
+  const terrEl = cont.querySelector("#territorio");
+  json(RUTAS.territorio).then((datos) => {
+    if (!terrEl.isConnected) return;
+    tablaTerr = montarTablaTerritorio(terrEl, datos, {
+      porCodigo,
+      nivel: nivelTabla(modoAmz),
+      alCambiarNivel: (n) => fijarModoAmz(n === "cualquiera" ? "todas" : n, { desde: "tabla" }),
+      alVerMunicipio: (m) => {
+        const [x0, y0, x1, y1] = m.bbox;
+        map.fitBounds([[x0, y0], [x1, y1]], { padding: 60, maxZoom: 11, duration: 900 });
+        const niveles = ["alta", "media", "baja"].filter((n) => m.niveles[n]);
+        popup?.remove();
+        capasAmz?.quitarPopup();
+        popup = new maplibregl.Popup({ maxWidth: "300px" }).setLngLat([(x0 + x1) / 2, (y0 + y1) / 2]).setHTML(`<div class="popup">
+          <h4>${esc(m.mpio)} <span class="secundario">· ${esc(m.dpto)}</span></h4>
+          <table>${niveles.map((n) => `<tr><td><span class="etiqueta"><span class="punto" style="background:${AMENAZA[n].color}"></span>${AMENAZA[n].nombre}</span></td>
+            <td>${m.niveles[n].pct >= 99.95 ? "100" : m.niveles[n].pct.toLocaleString("es-CO")} % del municipio</td></tr>`).join("")}</table>
+        </div>`).addTo(map);
+        cont.querySelector("#mapa-nacional").scrollIntoView({ behavior: "smooth", block: "center" });
+      },
+    });
+  }).catch((err) => {
+    terrEl.innerHTML = `<div class="aviso aviso--error" style="margin:16px"><span class="icono">!</span><div>No se pudo leer la tabla de municipios en amenaza: ${esc(err.message)}</div></div>`;
   });
 
   // ------------------------------------------------------------------ grafico
@@ -291,5 +358,5 @@ export async function render(cont, ctx) {
   dibujarTabla();
   dibujarGrafico();
 
-  return () => { popup?.remove(); graficos.liberar(); map.remove(); };
+  return () => { popup?.remove(); capasAmz?.quitarPopup(); graficos.liberar(); map.remove(); };
 }

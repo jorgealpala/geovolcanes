@@ -11,6 +11,7 @@ DESTINO="$(cd "$(dirname "$0")/.." && pwd)/data"
 [ -f "$FUENTE/index.json" ] || { echo "No existe $FUENTE/index.json: ejecute scripts/exportar_web.py en el proyecto de calculo." >&2; exit 1; }
 cp "$FUENTE"/{index.json,catalogo.json,ranking.json,colombia_departamentos.geojson} "$DESTINO/"
 rm -rf "$DESTINO/volcanes" && cp -r "$FUENTE/volcanes" "$DESTINO/volcanes"
+rm -rf "$DESTINO/nacional" && cp -r "$FUENTE/nacional" "$DESTINO/nacional"
 if [ "$CON_HIDROMET" = "--con-hidromet" ] && [ -d "$FUENTE/hidromet" ]; then
   mkdir -p "$DESTINO/hidromet" && cp "$FUENTE"/hidromet/*.json "$DESTINO/hidromet/"
 fi

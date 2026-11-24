@@ -101,6 +101,35 @@ def main() -> int:
                             if len(p["valores"]) != g["nx"] * g["ny"]:
                                 errores.append(f"{c} hidromet {f}/{modo}: grilla con tamaño incorrecto")
 
+    # Capa nacional: zonas de amenaza de todos los volcanes y municipios en amenaza
+    pm = DATA / "nacional" / "amenaza.pmtiles"
+    if not pm.exists():
+        errores.append("falta nacional/amenaza.pmtiles (mapa nacional sin zonas de amenaza)")
+    else:
+        with open(pm, "rb") as fh:
+            cab = fh.read(8)
+        if cab[:7] != b"PMTiles" or cab[7] != 3:
+            errores.append("nacional/amenaza.pmtiles no es PMTiles v3")
+    terr = leer(DATA / "nacional" / "territorio.json")
+    if terr:
+        mp = terr["municipios"]
+        for nivel in (*NIVELES, "cualquiera"):
+            sel = [m for m in mp if not m.get("litigio") and (nivel == "cualquiera" or nivel in m["niveles"])]
+            r = terr["resumen"][nivel]
+            if r["municipios"] != len(sel) or r["departamentos"] != len({m["dpto_cod"] for m in sel}):
+                errores.append(f"territorio.json: resumen de '{nivel}' no coincide con la lista de municipios")
+        volc = {c for m in mp for n in m["niveles"].values() for c in n["volcanes"]}
+        if volc != set(cods):
+            errores.append(f"territorio.json cubre {sorted(volc)}, pero el ranking tiene {sorted(cods)}: reexporte")
+        # Todo municipio con viviendas expuestas debe figurar en la tabla territorial
+        en_terr = {m["cod"] for m in mp}
+        for c in cods:
+            res = leer(DATA / "volcanes" / c / "resumen.json")
+            if res:
+                faltan = {m["cod"] for m in res["municipios"] if m["total"] > 0} - en_terr
+                if faltan:
+                    errores.append(f"{c}: municipios con exposición ausentes de territorio.json: {sorted(faltan)}")
+
     # Tamaños y credenciales en todo el repositorio publicable
     for p in RAIZ.rglob("*"):
         if not p.is_file() or ".git" in p.parts or "_pruebas" in p.parts:

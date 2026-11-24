@@ -12,6 +12,8 @@ export const RUTAS = {
   pmtiles: (cod) => `data/volcanes/${cod}/exposicion.pmtiles`,
   hidromet: (cod) => `data/hidromet/${cod}.json`,
   hidrometIndice: "data/hidromet/index.json",
+  nacionalAmenaza: "data/nacional/amenaza.pmtiles",
+  territorio: "data/nacional/territorio.json",
 };
 
 export function json(ruta) {

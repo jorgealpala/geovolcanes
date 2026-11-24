@@ -59,6 +59,7 @@ El script:
 
 - escribe `data/export_web/volcanes/<COD>/resumen.json` y `exposicion.pmtiles`;
 - **reconstruye** `catalogo.json`, `ranking.json` e `index.json` con todos los volcanes;
+- **regenera completos** `nacional/amenaza.pmtiles` (zonas de amenaza de todos los volcanes para el mapa nacional) y `nacional/territorio.json` (municipios y departamentos en cada nivel), aunque se use `--volcanes`; con `--sin-teselas` solo regenera `territorio.json`;
 - compara cada cifra con la API en vivo y termina con `Verificacion OK`. Si muestra `ERROR`, **no publique**: hay una diferencia entre la base y lo exportado.
 
 Para exportar todos los volcanes, omita `--volcanes` (tarda unos 2 minutos).
@@ -83,7 +84,7 @@ PowerShell, en la raíz de WEB:
 python scripts\servidor_local.py
 ```
 
-El script copia `data/export_web/` a `data/` y ejecuta `validar_datos.py`. Abra http://localhost:8765, elija el volcán nuevo y revise las cuatro pestañas.
+El script copia `data/export_web/` a `data/` (incluida `nacional/`) y ejecuta `validar_datos.py`. Abra http://localhost:8765, elija el volcán nuevo y revise las cuatro pestañas.
 
 ### 2.5 Publicar
 

@@ -15,12 +15,12 @@ Es la versión de publicación del proyecto de cálculo **GeoVolcanes-SCR** (Pos
 
 | Pestaña | Qué muestra | De dónde salen los datos |
 |---|---|---|
-| **Panorama nacional** | Mapa de los volcanes por nivel de alerta del SGC, indicadores nacionales, comparación de viviendas en amenaza alta y ranking de exposición (filtrable por escala del mapa, ordenable y descargable). | `data/catalogo.json`, `data/ranking.json` |
+| **Panorama nacional** | Mapa de los volcanes por nivel de alerta del SGC con las zonas de amenaza de todos los volcanes (todos los niveles, solo alta, media o baja), indicadores nacionales, comparación de viviendas en amenaza alta, departamentos y municipios en cada nivel de amenaza (resumen, detalle por departamento y CSV) y ranking de exposición. | `data/catalogo.json`, `data/ranking.json`, `data/nacional/` |
 | **Exposición** | Para el volcán elegido y el nivel de amenaza (todos, alta, media o baja), el tipo de unidad (urbano o rural) y la métrica (viviendas o personas): indicadores, mapa de intersección amenaza × manzanas y secciones del DANE, gráficas, métricas por nivel, tabla de municipios con búsqueda y CSV, y metodología. | `data/volcanes/<COD>/resumen.json` y `exposicion.pmtiles` |
 | **Satelital** | Sentinel-2, Landsat 8/9 y Sentinel-1 en vivo por rango de fechas con calendario de escenas y compuesto mediano; GOES-19 animado (últimas 2 horas); MODIS y VIIRS diarios. Contorno de la amenaza del SGC superpuesto. | Microsoft Planetary Computer y NASA GIBS (en vivo, sin claves) |
 | **Hidrometeorología** | Lluvia diaria de IMERG, CHIRPS y ERA5-Land sobre el cráter (hasta 1 año), acumulados semanales y mensuales, últimos 12 meses frente a la climatología, pronóstico de 7 días, mapas de lluvia acumulada por periodo y mapa de lluvia media anual. | `data/hidromet/<COD>.json` (Earth Engine, diario) y Open-Meteo (en vivo) |
 
-La URL guarda el estado completo (volcán, pestaña y filtros). Por ejemplo, `#/exposicion?v=VCM&nivel=alta&tipo=urbano` se puede compartir tal cual.
+La URL guarda el estado completo (volcán, pestaña y filtros). Por ejemplo, `#/exposicion?v=VCM&nivel=alta&tipo=urbano` o `#/nacional?amenaza=media` se pueden compartir tal cual.
 
 ## B. Cómo funciona
 
@@ -54,11 +54,12 @@ geovolcanes-scr-web/
 │   └── js/
 │       ├── main.js                 ← enrutador por hash y selector de volcán
 │       ├── datos.js · formato.js · constantes.js · mapas.js · graficos.js
-│       └── vistas/                 ← nacional.js, exposicion.js, satelital.js, hidromet.js
+│       └── vistas/                 ← nacional.js (+ nacional-amenaza.js), exposicion.js, satelital.js, hidromet.js
 ├── data/                           ← DATOS (ver docs/DATOS.md)
 │   ├── index.json                  ← manifiesto: fecha, volcanes, archivos
 │   ├── catalogo.json · ranking.json · colombia_departamentos.geojson
 │   ├── volcanes/<COD>/resumen.json + exposicion.pmtiles
+│   ├── nacional/amenaza.pmtiles + territorio.json   ← mapa nacional y municipios en amenaza
 │   └── hidromet/<COD>.json + index.json
 ├── scripts/
 │   ├── actualizar_hidromet.py      ← lluvia con Earth Engine (local o Actions)
@@ -78,8 +79,8 @@ Nunca a mano. Todo dato de exposición lo genera el proyecto de cálculo y se co
 
 | Si cambió… | Haga esto | Archivos que se actualizan |
 |---|---|---|
-| Un volcán nuevo o un mapa de amenaza nuevo | Flujo completo de [FLUJO_ACTUALIZACION.md §2](docs/FLUJO_ACTUALIZACION.md) | `catalogo.json`, `ranking.json`, `volcanes/<COD>/`, `hidromet/<COD>.json` |
-| Un recálculo de exposición o el nivel de alerta de un volcán | Exportar y sincronizar ([§3](docs/FLUJO_ACTUALIZACION.md)) | `catalogo.json`, `ranking.json`, `volcanes/` |
+| Un volcán nuevo o un mapa de amenaza nuevo | Flujo completo de [FLUJO_ACTUALIZACION.md §2](docs/FLUJO_ACTUALIZACION.md) | `catalogo.json`, `ranking.json`, `volcanes/<COD>/`, `nacional/`, `hidromet/<COD>.json` |
+| Un recálculo de exposición o el nivel de alerta de un volcán | Exportar y sincronizar ([§3](docs/FLUJO_ACTUALIZACION.md)) | `catalogo.json`, `ranking.json`, `volcanes/`, `nacional/` |
 | La lluvia satelital | Nada: GitHub Actions la actualiza cada día ([§4](docs/FLUJO_ACTUALIZACION.md)) | `hidromet/` |
 
 ## E. Probar localmente
@@ -128,6 +129,15 @@ Si un servicio externo falla, la pestaña correspondiente muestra un aviso; la e
 - **Hidrometeorología:** mismas fuentes y productos, más pronóstico de 7 días y comparación con la climatología. Los mapas de lluvia se actualizan una vez al día y no al momento de consultar.
 - **Escenarios y Reportes:** no se migraron (tampoco están en el módulo actual).
 
-## I. Créditos
+## I. Cómo citar
+
+> Alpala, J. A., Franco, A. C. y Lima, M. C. (2026). *GeoVolcanes-SCR: geoportal libre y replicable para la evaluación de exposición y apoyo a la toma de decisiones ante amenaza volcánica. Estudio de caso: volcán Nevado del Ruiz* [Geoportal]. Subdirección para el Conocimiento del Riesgo, Unidad Nacional para la Gestión del Riesgo de Desastres (UNGRD). https://jorgealpala.github.io/geovolcanes/
+
+Autores: Jorge Armando Alpala¹, Aura Catalina Franco¹ y María Camila Lima¹.  
+¹ Subdirección para el Conocimiento del Riesgo (SCR), Unidad Nacional para la Gestión del Riesgo de Desastres (UNGRD), Bogotá, Colombia. Contacto: jorge.alpala@gestiondelriesgo.gov.co
+
+El archivo [`CITATION.cff`](CITATION.cff) activa el botón **Cite this repository** de GitHub (APA y BibTeX). El pie del geoportal tiene la misma cita con botones para copiarla.
+
+## J. Créditos
 
 Amenaza volcánica: **Servicio Geológico Colombiano**. Exposición: **DANE**, Marco Geoestadístico Nacional 2025. Imágenes: Copernicus (ESA), NASA, USGS y NOAA. Lluvia: NASA GPM IMERG, UCSB CHIRPS, ECMWF ERA5-Land y Open-Meteo. Desarrollo: UNGRD, Subdirección para el Conocimiento del Riesgo.

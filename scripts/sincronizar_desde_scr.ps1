@@ -26,6 +26,9 @@ foreach ($f in @("index.json", "catalogo.json", "ranking.json", "colombia_depart
 # volcanes\: espejo exacto (borra en destino los volcanes que ya no se exportan)
 robocopy (Join-Path $fuente "volcanes") (Join-Path $destino "volcanes") /MIR /NFL /NDL /NJH /NJS /NP | Out-Null
 if ($LASTEXITCODE -ge 8) { throw "robocopy fallo con codigo $LASTEXITCODE" }
+# nacional\: zonas de amenaza de todos los volcanes y municipios en amenaza
+robocopy (Join-Path $fuente "nacional") (Join-Path $destino "nacional") /MIR /NFL /NDL /NJH /NJS /NP | Out-Null
+if ($LASTEXITCODE -ge 8) { throw "robocopy fallo con codigo $LASTEXITCODE" }
 if ($ConHidromet -and (Test-Path (Join-Path $fuente "hidromet"))) {
   robocopy (Join-Path $fuente "hidromet") (Join-Path $destino "hidromet") *.json /NFL /NDL /NJH /NJS /NP | Out-Null
   if ($LASTEXITCODE -ge 8) { throw "robocopy fallo con codigo $LASTEXITCODE" }
