@@ -1,0 +1,3 @@
+# Archivos binarios: git nunca debe alterar sus finales de linea
+*.pmtiles binary
+*.png binary

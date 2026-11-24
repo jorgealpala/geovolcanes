@@ -1,0 +1,17 @@
+# --- Credenciales: NUNCA al repositorio ---
+*.key.json
+gee-key.json
+gee_credentials.json
+secrets/
+.env
+
+# --- Herramientas locales y temporales ---
+_pruebas/
+__pycache__/
+*.pyc
+.venv/
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini

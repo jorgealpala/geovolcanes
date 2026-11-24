@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GeoVolcanes-SCR · Geoportal de exposición volcánica de Colombia</title>
+  <meta name="description" content="Geoportal de la UNGRD: exposición de viviendas, población y actividad económica ante la amenaza volcánica de los volcanes activos de Colombia, con monitoreo satelital e hidrometeorológico.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M3 28 L13 9 L16 13 L19 9 L29 28 Z' fill='%23b42318'/%3E%3Cpath d='M13 9 Q16 3 19 9' fill='none' stroke='%2352514e' stroke-width='2'/%3E%3C/svg%3E">
+
+  <!-- Librerias (versiones fijadas) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+  <script src="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/pmtiles@3.2.1/dist/pmtiles.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+
+  <link rel="stylesheet" href="assets/css/estilos.css">
+</head>
+<body>
+  <a class="saltar" href="#vista">Saltar al contenido</a>
+
+  <header class="barra">
+    <div class="barra__marca">
+      <img src="assets/img/ungrd_logo.png" alt="UNGRD · Unidad Nacional para la Gestión del Riesgo de Desastres" class="barra__logo">
+      <div class="barra__titulo">
+        <strong>GeoVolcanes-SCR</strong>
+        <span>Geoportal de exposición ante amenaza volcánica · Colombia</span>
+      </div>
+    </div>
+
+    <nav class="barra__nav" aria-label="Secciones">
+      <a href="#/nacional"   data-ruta="nacional">Panorama nacional</a>
+      <a href="#/exposicion" data-ruta="exposicion">Exposición</a>
+      <a href="#/satelital"  data-ruta="satelital">Satelital</a>
+      <a href="#/hidromet"   data-ruta="hidromet">Hidrometeorología</a>
+    </nav>
+
+    <div class="barra__volcan">
+      <label for="selector-volcan">Volcán</label>
+      <div class="selector-volcan">
+        <span class="punto-alerta" id="selector-alerta" aria-hidden="true"></span>
+        <select id="selector-volcan" aria-label="Volcán activo"></select>
+      </div>
+    </div>
+  </header>
+
+  <main id="vista" tabindex="-1">
+    <div class="cargando" role="status"><span class="girador"></span> Cargando geoportal…</div>
+  </main>
+
+  <footer class="pie">
+    <div>
+      <strong>GeoVolcanes-SCR</strong> · UNGRD · Subdirección para el Conocimiento del Riesgo.
+      Amenaza: Servicio Geológico Colombiano (SGC). Exposición: DANE, Marco Geoestadístico Nacional 2025.
+      Satélite: Copernicus · NASA · USGS · NOAA (vía Microsoft Planetary Computer y NASA GIBS).
+      Lluvia: NASA GPM IMERG · UCSB CHIRPS · ECMWF ERA5-Land · Open-Meteo.
+    </div>
+    <div id="pie-fechas" class="pie__fechas"></div>
+  </footer>
+
+  <script type="module" src="assets/js/main.js"></script>
+</body>
+</html>
