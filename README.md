@@ -18,7 +18,7 @@ Es la versión de publicación del proyecto de cálculo **GeoVolcanes-SCR** (Pos
 |---|---|---|
 | **Panorama nacional** | Mapa de los volcanes por nivel de alerta del SGC con las zonas de amenaza de todos los volcanes (todos los niveles, solo alta, media o baja), indicadores nacionales, comparación de viviendas en amenaza alta, departamentos y municipios en cada nivel de amenaza (resumen, detalle por departamento y CSV) y ranking de exposición. | `data/catalogo.json`, `data/ranking.json`, `data/nacional/` |
 | **Exposición** | Para el volcán elegido y el nivel de amenaza (todos, alta, media o baja), el tipo de unidad (urbano o rural) y la métrica (viviendas o personas): indicadores, mapa de intersección amenaza × manzanas y secciones del DANE, gráficas, métricas por nivel, tabla de municipios con búsqueda y CSV, y metodología. | `data/volcanes/<COD>/resumen.json` y `exposicion.pmtiles` |
-| **Satelital** | Sentinel-2, Landsat 8/9 y Sentinel-1 en vivo por rango de fechas con calendario de escenas y compuesto mediano; GOES-19 animado (últimas 2 horas); MODIS y VIIRS diarios. Contorno de la amenaza del SGC superpuesto. | Microsoft Planetary Computer y NASA GIBS (en vivo, sin claves) |
+| **Satelital** | Sentinel-2, Landsat 8/9 y Sentinel-1 en vivo por rango de fechas con calendario de escenas y compuesto mediano (mediana píxel a píxel de las 8 escenas más recientes del rango); GOES-19 animado (últimas 2 horas); MODIS y VIIRS diarios. Contorno de la amenaza del SGC superpuesto. | Microsoft Planetary Computer y NASA GIBS (en vivo, sin claves) |
 | **Hidrometeorología** | Lluvia diaria de IMERG, CHIRPS y ERA5-Land sobre el cráter (hasta 1 año), acumulados semanales y mensuales, últimos 12 meses frente a la climatología, pronóstico de 7 días, mapas de lluvia acumulada por periodo y mapa de lluvia media anual. | `data/hidromet/<COD>.json` (Earth Engine, diario) y Open-Meteo (en vivo) |
 
 La URL guarda el estado completo (volcán, pestaña y filtros). Por ejemplo, `#/exposicion?v=VCM&nivel=alta&tipo=urbano` o `#/nacional?amenaza=media` se pueden compartir tal cual.
@@ -117,7 +117,7 @@ El repositorio pesa unos 75 MB, casi todo en los `.pmtiles`. Ningún archivo se 
 | Esri ArcGIS Online (basemaps) | Mapas base gris, satelital, topográfico, relieve | No | Uso con atribución |
 | OpenStreetMap | Mapa base de calles | No | Política de uso justo de tile.openstreetmap.org |
 | AWS Terrain Tiles (Mapzen) | Relieve 3D y sombreado | No | Datos abiertos en AWS |
-| Microsoft Planetary Computer | Catálogo STAC y teselas de Sentinel-2, Landsat y Sentinel-1 | No | Si responde lento, reintentar |
+| Microsoft Planetary Computer | Catálogo STAC y teselas de Sentinel-2, Landsat y Sentinel-1 | No | Si responde lento, reintentar. Puede cambiar su API sin aviso (ver [FLUJO_ACTUALIZACION.md §6](docs/FLUJO_ACTUALIZACION.md)) |
 | NASA GIBS | GOES-19, MODIS y VIIRS | No | Latencia de 20 a 40 min (GOES) y de 3 a 5 h (diarios) |
 | Open-Meteo | Pronóstico de lluvia de 7 días | No | Uso no comercial gratuito |
 

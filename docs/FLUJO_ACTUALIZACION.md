@@ -182,3 +182,5 @@ Cada volcán tarda unos 40 segundos.
 | La pestaña Hidrometeorología muestra "Sin datos de lluvia" | Falta `data/hidromet/<COD>.json` | §2.3, o ejecutar el flujo de Actions a mano |
 | El flujo de Actions falla con "Falta el secreto" | No se configuró `GEE_SERVICE_ACCOUNT_KEY` | §4 |
 | Satelital no encuentra escenas | Nubosidad andina | Ampliar fechas o umbral de nubes, o usar Sentinel-1 |
+| Satelital: "Catálogo STAC respondió HTTP 400" (o 422) en un sensor que antes funcionaba | Planetary Computer cambió las reglas de su API. Así pasó el 26 nov 2026: dejó de aceptar un `query` vacío y Sentinel-1 falló | Reproducir la búsqueda con `curl -X POST https://planetarycomputer.microsoft.com/api/stac/v1/search` y el cuerpo que arma `buscarEscenas()` en `assets/js/vistas/satelital.js`; el mensaje de error dice qué rechaza. Corregir ahí y publicar |
+| El compuesto mediano tarda en cargar o queda incompleto | Cada tesela combina varias escenas en el servidor | Es normal que tarde 2 a 5 s. El número de escenas lo fija `MAX_MEDIANA` (8) en `satelital.js`: más escenas = menos nubes pero más lento (con 26, ~10 s y teselas que no alcanzan a cargar) |
