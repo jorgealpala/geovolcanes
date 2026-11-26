@@ -174,21 +174,24 @@ def definir_grilla(lat: float, lon: float, semi_km: float) -> dict:
 
 
 def muestrear(img: ee.Image, g: dict, nombres: list[str]) -> list[list[float]]:
+    """Muestrea las bandas en la grilla fija de g (nx x ny celdas, origen arriba a la izquierda).
+
+    Earth Engine puede devolver una fila o columna de mas o de menos segun el redondeo del
+    borde. La grilla NO se ajusta a lo devuelto (si se ajustara, cada llamada siguiente usaria
+    una extension distinta y los periodos quedarian de tamanos diferentes): se recorta o se
+    rellena con None hasta nx x ny, y bbox queda fijo.
+    """
     x0, y0, x1, y1 = g["bbox"]
+    nx, ny = g["nx"], g["ny"]
     proj = ee.Projection("EPSG:4326", [g["dlon"], 0, x0, 0, -g["dlat"], y1])
     rect = ee.Geometry.Rectangle([x0, y0, x1, y1], proj=None, geodesic=False)
     arr = img.resample("bilinear").reproject(proj).sampleRectangle(region=rect, defaultValue=-9999)
     props = reintentar(lambda: arr.getInfo())["properties"]
     out = []
     for b in nombres:
-        filas = props[b]
-        # Earth Engine puede devolver una fila/columna de mas o de menos segun el
-        # redondeo del borde: la grilla toma las dimensiones reales devueltas.
-        g["ny"], g["nx"] = len(filas), len(filas[0])
-        # El origen (esquina superior izquierda) es fijo; la extension sigue a las celdas devueltas.
-        g["bbox"] = [x0, round(y1 - g["dlat"] * g["ny"], 6), round(x0 + g["dlon"] * g["nx"], 6), y1]
-        plano = [None if v is None or v <= -9998 else round(float(v), 1) for fila in filas for v in fila]
-        out.append(plano)
+        filas = [list(f[:nx]) + [None] * (nx - len(f[:nx])) for f in props[b][:ny]]
+        filas += [[None] * nx for _ in range(ny - len(filas))]
+        out.append([None if v is None or v <= -9998 else round(float(v), 1) for fila in filas for v in fila])
     return out
 
 
