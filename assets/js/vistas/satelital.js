@@ -83,6 +83,8 @@ const GIBS_DIARIO = {
 };
 
 // ---------------------------------------------------------------- STAC
+const MAX_MEDIANA = 8;  // escenas que entran en el compuesto mediano (las mas recientes)
+
 async function buscarEscenas(cfg, lat, lon, f0, f1, nubes) {
   const query = { ...(cfg.filtro || {}) };
   if (cfg.nubes !== undefined) query["eo:cloud_cover"] = { lte: nubes };
@@ -92,8 +94,10 @@ async function buscarEscenas(cfg, lat, lon, f0, f1, nubes) {
     datetime: `${f0}T00:00:00Z/${f1}T23:59:59Z`,
     limit: 250,
     sortby: [{ field: "datetime", direction: "desc" }],
-    query,
   };
+  // Solo se envia "query" si tiene condiciones: desde nov. 2026 Planetary Computer
+  // rechaza un "query" vacio con HTTP 400 ("The and operator requires an array of args").
+  if (Object.keys(query).length) cuerpo.query = query;
   const r = await fetch(`${PC}/stac/v1/search`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(cuerpo) });
   if (!r.ok) throw new Error(`Catálogo STAC respondió HTTP ${r.status}`);
   const j = await r.json();
@@ -130,7 +134,11 @@ function urlEscena(cfg, item, visKey) {
 }
 function urlMosaico(cfg, sid, visKey, f0) {
   const v = cfg.vis[visKey];
-  return `${PC}/data/v1/mosaic/${sid}/tiles/WebMercatorQuad/{z}/{x}/{y}@2x?collection=${cfg.coleccion}&${v.p(offsetRango(f0))}&pixel_selection=median`;
+  // items_limit: mediana de las MAX_MEDIANA escenas mas recientes (con todas, cada tesela
+  // tarda ~10 s; con 8, 2-5 s).
+  // exitwhenfull/skipcovered=false: sin esto el mosaico se detiene en la primera escena que
+  // cubre la tesela y la "mediana" es solo la escena mas reciente.
+  return `${PC}/data/v1/mosaic/${sid}/tiles/WebMercatorQuad/{z}/{x}/{y}@2x?collection=${cfg.coleccion}&${v.p(offsetRango(f0))}&pixel_selection=median&exitwhenfull=false&skipcovered=false&items_limit=${MAX_MEDIANA}`;
 }
 
 function ultimoGOES(desfaseMin = 40) {
@@ -289,8 +297,8 @@ export async function render(cont, ctx) {
       }
       $("#lista").innerHTML = `
         <button class="escena" data-id="compuesto" aria-pressed="false">
-          <span class="fecha">Compuesto mediano del rango</span><span class="nubes">${escenas.length} escenas</span>
-          <span class="meta">Mediana píxel a píxel: reduce nubes y ruido</span></button>
+          <span class="fecha">Compuesto mediano del rango</span><span class="nubes">${Math.min(escenas.length, MAX_MEDIANA)} escenas</span>
+          <span class="meta">Mediana píxel a píxel${escenas.length > MAX_MEDIANA ? ` de las ${MAX_MEDIANA} más recientes` : ""}: reduce nubes y ruido</span></button>
         ${escenas.map((it) => {
           const p = it.properties;
           const nb = p["eo:cloud_cover"];
